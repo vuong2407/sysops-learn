@@ -15,11 +15,3 @@ jobs:
         uses: ./.github/actions/BuildPushImage
         with:
           image-name: sysops-nodejs-app
-      - name: Build and push mongo db image
-        uses: ./.github/actions/BuildPushImage
-        with:
-          image-name: mongo
-      - name: Build and push redis image
-        uses: ./.github/actions/BuildPushImage
-        with:
-          image-name: redis
