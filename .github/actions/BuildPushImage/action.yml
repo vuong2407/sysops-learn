@@ -16,7 +16,7 @@ runs:
         docker build -t ${{ inputs.image-name }} .
 
         # Get the commit SHA
-        COMMIT_SHA=$(git rev-parse --short HEAD)
+        COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
 
         # Tag the image with the commit SHA
         docker tag ${{ inputs.image-name }} $DOCKER_USERNAME/${{ inputs.image-name }}:$COMMIT_SHA
