@@ -1,0 +1,48 @@
+version: "3.4"
+
+services:
+  app:
+    image: learning-docker:node
+    volumes:
+      - ./public/images:/app/public/images
+      - ./:/app
+    env_file: .env
+    ports:
+      - "${PORT}:${PORT}"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - db
+    networks:
+      - db-network
+      - cache-network
+
+  db:
+    image: mongo:4.4
+    volumes:
+      - .docker/data/db:/data/db
+      - .docker/db-entrypoint.sh:/docker-entrypoint-initdb.d/db-entrypoint.sh
+    restart: unless-stopped
+    networks:
+      - db-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_ROOT_PASS}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - .docker/data/redis:/data
+    restart: unless-stopped
+    networks:
+      - cache-network
+
+networks:
+  cache-network:
+    driver: bridge
+  db-network:
+    driver: bridge
