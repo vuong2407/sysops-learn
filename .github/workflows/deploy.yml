@@ -1,0 +1,25 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_push_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build and push nodejs app image
+        uses: ./.github/actions/BuildPushImage
+        with:
+          image-name: sysops-nodejs-app
+      - name: Build and push mongo db image
+        uses: ./.github/actions/BuildPushImage
+        with:
+          image-name: mongo
+      - name: Build and push redis image
+        uses: ./.github/actions/BuildPushImage
+        with:
+          image-nam: redis

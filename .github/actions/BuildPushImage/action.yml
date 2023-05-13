@@ -1,0 +1,28 @@
+name: "Build and push image to docker registry"
+description: "build image with the sha commit tag for image and push to docker hub"
+inputs:
+  image-name:
+    description: "name of the image"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Build and push Docker image
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        # Set up Docker CLI
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+        # Build the Docker image with new code
+        docker build -t ${{ inputs.image-name }} .
+
+        # Get the commit SHA
+        COMMIT_SHA=$(git rev-parse --short HEAD)
+
+        # Tag the image with the commit SHA
+        docker tag ${{ inputs.image-name }} $DOCKER_USERNAME/${{ inputs.image-name }}:$COMMIT_SHA
+
+        # Push the image to Docker Hub
+        docker push $DOCKER_USERNAME/${{ inputs.image-name }}:$COMMIT_SHA
