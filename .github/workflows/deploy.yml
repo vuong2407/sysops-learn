@@ -22,4 +22,4 @@ jobs:
       - name: Build and push redis image
         uses: ./.github/actions/BuildPushImage
         with:
-          image-nam: redis
+          image-name: redis
