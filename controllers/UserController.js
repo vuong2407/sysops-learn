@@ -3,6 +3,19 @@ const User = require('../models/User')
 class UserController {
   static async login (req, res, next) {
     try {
+      const { email, password } = req.body
+
+      if (!email || !email.length) {
+        return res.status(422).send({
+          message: 'email is required and must not be empty'
+        })
+      }
+
+      if (!password || !password.length) {
+        return res.status(422).send({
+          message: 'Password is required and must not be empty'
+        })
+      }
       req.session.save()
 
       return res.redirect('/')

@@ -20,6 +20,7 @@ router.post('/login', passport.authenticate('local', {
   failureRedirect: '/login',
   failureFlash: true
 }), UserController.login)
+router.post('/test/login', UserController.login)
 
 router.get('/register', (req, res, next) => {
   res.render('auth/register', { title: 'Register' })
