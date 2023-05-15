@@ -37,8 +37,24 @@ jobs:
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
           docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
-          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:v1
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:latest
           docker compose up -d
           sleep 15
           npm i
           docker exec ${{ env.NODEJS_APP_NAME }} npm run test
+  
+  release:
+    needs: testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push image release
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          # Set up Docker CLI
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
+          docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:latest
+          docker push $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:latest
