@@ -40,4 +40,5 @@ jobs:
           docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:v1
           docker compose up -d
           sleep 15
+          npm i
           docker exec ${{ env.NODEJS_APP_NAME }} npm run test
