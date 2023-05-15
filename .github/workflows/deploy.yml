@@ -36,8 +36,8 @@ jobs:
           # Set up Docker CLI
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
-          docker pull ${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
-          docker tag ${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:v1
+          docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:v1
           docker compose up -d
           sleep 15
           docker exec -T ${{ env.NODEJS_APP_NAME }} npm run test
