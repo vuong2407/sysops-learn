@@ -58,5 +58,5 @@ jobs:
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
           docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
-          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:latest
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:latest
           docker push $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:latest
