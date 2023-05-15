@@ -5,6 +5,9 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  NODEJS_APP_NAME: sysops-nodejs-app
+
 jobs:
   build_and_push_image:
     runs-on: ubuntu-latest
@@ -17,4 +20,43 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         uses: ./.github/actions/BuildPushImage
         with:
-          image-name: sysops-nodejs-app
+          image-name: ${{ env.NODEJS_APP_NAME }}
+  
+  testing:
+    needs: build_and_push_image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Pull and testing
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          # Set up Docker CLI
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
+          docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA ${{ env.NODEJS_APP_NAME }}:latest
+          docker compose up -d
+          sleep 15
+          npm i
+          docker exec ${{ env.NODEJS_APP_NAME }} npm run test
+  
+  release:
+    needs: testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Push image release
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          # Set up Docker CLI
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          COMMIT_SHA=$(git rev-parse --short "$GITHUB_SHA")
+          docker pull $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA
+          docker tag $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:$COMMIT_SHA $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:latest
+          docker push $DOCKER_USERNAME/${{ env.NODEJS_APP_NAME }}:latest
