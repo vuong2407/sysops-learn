@@ -44,6 +44,45 @@ services:
     networks:
       - cache-network
 
+  cadvisor:
+    image: vanvuong24072001/cadvisor:latest
+    container_name: sysops-cadvisor
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sysops-prometheus
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana
+    container_name: sysops-grafana
+    ports:
+      - 4000:3000
+    command:
+      - sh
+      - -c
+      - "chown -R 104:104 /var/lib/grafana && exec /run.sh"
+    user: "104"
+    volumes:
+      - ./monitoring/data:/var/lib/grafana
+    restart: always
+    depends_on:
+      - prometheus
+
 networks:
   cache-network:
     driver: bridge
